@@ -1,0 +1,36 @@
+/**
+ * Tokens de design da RUBI Agência.
+ *
+ * As três cores da marca foram extraídas diretamente dos arquivos oficiais em
+ * `public/brand`: off-white #EFEFEF, preto #000000 e bronze #A66F3A.
+ * Espelha `src/config/brand.ts` — ver a nota naquele arquivo antes de alterar.
+ */
+
+@theme {
+  /* Superfícies e texto */
+  --color-ink: #000000;
+  --color-ink-raised: #0d0d0d;
+  --color-ink-sunken: #000000;
+  --color-paper: #efefef;
+  --color-muted: #8a8a8a;
+  --color-faint: #5a5a5a;
+  --color-line: #232323;
+  --color-line-strong: #3d3d3d;
+
+  /* Bronze da marca. `accent` é a cor oficial; `accent-soft` é uma clareada
+     dela para texto pequeno — #A66F3A sobre preto dá 4.96:1, no limite do AA,
+     enquanto #C89055 chega a 7.58:1. */
+  --color-accent: #a66f3a;
+  --color-accent-soft: #c89055;
+  --color-accent-deep: #6d4726;
+
+  /* Erros precisam se distinguir do bronze: mais vermelho e mais claro. */
+  --color-danger: #e8705f;
+
+  /* Tipografia — as variáveis são preenchidas por next/font em layout.tsx */
+  --font-display: var(--font-bodoni), 'Times New Roman', serif;
+  --font-sans: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+
+  /* Movimento */
+  --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
+}

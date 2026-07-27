@@ -1,26 +1,108 @@
 @import "tailwindcss";
+@import "../styles/theme.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@layer base {
+  html {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    -webkit-tap-highlight-color: transparent;
+  }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  body {
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  ::selection {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-accent-soft);
+    outline-offset: 3px;
+  }
+
+  /* Remove o incremento nativo de inputs numéricos. */
+  input[type="number"] {
+    appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  /* Sem isto o autofill do Chrome pinta o campo de azul claro sobre o preto. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill {
+    -webkit-text-fill-color: var(--color-paper);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-ink) inset;
+    caret-color: var(--color-paper);
+    transition: background-color 9999s ease-in-out 0s;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* Assinatura tipográfica da marca: sans fina, caixa alta, tracking largo. */
+  .type-signature {
+    font-family: var(--font-sans);
+    font-weight: 300;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+
+  .type-eyebrow {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  /* Perguntas: didone fluida, do celular ao desktop. */
+  .type-question {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.6rem, 1.15rem + 2.1vw, 2.6rem);
+    line-height: 1.18;
+    letter-spacing: -0.015em;
+  }
+
+  .type-display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.4rem, 1.4rem + 4.4vw, 4.5rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+  }
+
+  /* Bronze da marca em degradê, para a barra de progresso. */
+  .bg-bronze {
+    background-image: linear-gradient(
+      100deg,
+      var(--color-accent-deep) 0%,
+      var(--color-accent-soft) 45%,
+      var(--color-accent) 100%
+    );
+  }
+
+  .scrollbar-slim {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
