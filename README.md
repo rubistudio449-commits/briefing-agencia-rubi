@@ -21,7 +21,8 @@ normalmente, mas o envio final retorna erro — é o único ponto que exige conf
 | Variável | Obrigatória | Para quê |
 |---|---|---|
 | `WEBHOOK_URL` | sim | Destino das respostas (n8n, Make, Zapier, endpoint próprio). Lida apenas no servidor. |
-| `BLOB_READ_WRITE_TOKEN` | não | Habilita o upload de referências visuais. Criada ao conectar um Blob Store em **Storage → Blob** no painel da Vercel. |
+| `BLOB_READ_WRITE_TOKEN` | não | Habilita o upload de referências visuais **e o arquivamento dos briefings** para o painel interno. Criada ao conectar um Blob Store em **Storage → Blob** no painel da Vercel. |
+| `ADMIN_PASSWORD` | não | Senha do painel interno em `/admin`. Sem ela, o painel exibe um aviso e não permite entrar. |
 | `NEXT_PUBLIC_SITE_URL` | não | Domínio final, usado para montar a URL absoluta da imagem de Open Graph. Na Vercel é deduzido automaticamente. |
 
 `NEXT_PUBLIC_WEBHOOK_URL` também é aceito por compatibilidade, mas **prefira `WEBHOOK_URL`**:
@@ -66,6 +67,20 @@ Perguntas ocultadas por lógica condicional e respostas em branco não entram no
 
 `resumoMarkdown` existe para que o destino (n8n, por exemplo) consiga encaminhar o briefing por
 e-mail ou WhatsApp sem ter que percorrer o JSON.
+
+## Painel interno
+
+Em `/admin`, protegido por senha (`ADMIN_PASSWORD`), ficam os briefings recebidos:
+
+- **`/admin`** — lista de briefings, do mais recente para o mais antigo, com marca, contato, número de respostas e de arquivos enviados.
+- **`/admin/[id]`** — o briefing completo, agrupado pelas 21 seções, com as referências visuais exibidas em miniatura.
+- **`/admin/[id]/imprimir`** — versão em preto sobre branco para exportar em PDF. O botão **Baixar PDF** abre o diálogo de impressão do navegador; basta escolher "Salvar como PDF" em Destino. As imagens de referência entram no documento.
+
+Cada briefing é arquivado como um JSON **privado** no Vercel Blob (`briefings/<id>.json`),
+gravado **antes** da chamada ao webhook — se o destino estiver fora do ar, as respostas continuam
+disponíveis no painel. A sessão usa um cookie `HttpOnly` assinado com HMAC, válido por 7 dias.
+
+Sem `BLOB_READ_WRITE_TOKEN` o painel abre normalmente, mas avisa que o arquivamento está inativo.
 
 ## Identidade visual
 

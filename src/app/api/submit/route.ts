@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { buildPayload } from '@/lib/payload';
+import { saveSubmission } from '@/lib/submissions';
 import { submissionSchema } from '@/lib/validation';
 import type { Answers } from '@/types/briefing';
 
@@ -56,6 +57,14 @@ export async function POST(request: Request) {
   // O payload é montado aqui a partir da transcrição oficial do briefing:
   // o cliente envia apenas as respostas cruas.
   const payload = buildPayload(parsed.data.answers as Answers, parsed.data.startedAt);
+
+  // Guardar antes de enviar: se o webhook falhar, o briefing não se perde e
+  // continua acessível no painel interno.
+  try {
+    await saveSubmission(payload);
+  } catch (error) {
+    console.error('[briefing] falha ao arquivar o briefing:', error);
+  }
 
   let lastError = 'Falha ao entregar o briefing.';
 

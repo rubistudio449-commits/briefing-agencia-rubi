@@ -97,6 +97,25 @@
   }
 }
 
+/* Exportação em PDF pela impressão do navegador. */
+@media print {
+  @page {
+    margin: 16mm 14mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Imagens de referência costumam ser o motivo de imprimir: manter as cores. */
+  img {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
