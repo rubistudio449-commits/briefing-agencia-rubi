@@ -1,4 +1,4 @@
-import { get, list, put } from '@vercel/blob';
+import { del, get, list, put } from '@vercel/blob';
 
 import type { BriefingPayload } from '@/lib/payload';
 
@@ -151,6 +151,26 @@ async function listLocalIds(): Promise<string[]> {
     return files.filter((file) => file.endsWith('.json')).map((file) => file.replace(/\.json$/, ''));
   } catch {
     return [];
+  }
+}
+
+/** Exclusão definitiva: não há lixeira, o arquivo é removido do store. */
+export async function deleteSubmission(id: string): Promise<boolean> {
+  if (!storageEnabled() || !isSafeId(id)) return false;
+
+  try {
+    if (writesToDisk()) {
+      const fs = await import('node:fs/promises');
+      const { dir, join } = await localPaths();
+      await fs.unlink(join(dir, `${id}.json`));
+      return true;
+    }
+
+    await del(`${PREFIX}${id}.json`);
+    return true;
+  } catch (error) {
+    console.error('[briefing] falha ao excluir:', error);
+    return false;
   }
 }
 

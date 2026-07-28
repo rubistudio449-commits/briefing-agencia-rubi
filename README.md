@@ -86,6 +86,10 @@ Em `/admin`, protegido por senha (`ADMIN_PASSWORD`), ficam os briefings recebido
 - **`/admin/[id]`** — o briefing completo, agrupado pelas 21 seções, com as referências visuais exibidas em miniatura.
 - **`/admin/[id]/imprimir`** — versão em preto sobre branco para exportar em PDF. O botão **Baixar PDF** abre o diálogo de impressão do navegador; basta escolher "Salvar como PDF" em Destino. As imagens de referência entram no documento.
 
+A exclusão fica ao final da página de detalhe, com confirmação em dois passos, e roda como
+Server Action que revalida a sessão por conta própria — uma action é um endpoint e pode ser
+chamada sem passar pela página.
+
 Cada briefing é arquivado como um JSON **privado** no Vercel Blob (`briefings/<id>.json`),
 gravado **antes** da chamada ao webhook — se o destino estiver fora do ar, as respostas continuam
 disponíveis no painel. A sessão usa um cookie `HttpOnly` assinado com HMAC, válido por 7 dias.

@@ -24,6 +24,7 @@ Se ele fechar o navegador no meio, ao voltar retoma de onde parou. Nada se perde
 - **`/admin`** — os briefings recebidos, do mais recente para o mais antigo
 - Clique em um deles para ver todas as respostas, organizadas nas 21 seções
 - **Baixar PDF** → abre a janela de impressão → escolha **Salvar como PDF** em "Destino"
+- No fim da página, **Excluir briefing** remove o registro (com confirmação)
 
 Já existe um briefing de exemplo lá dentro, da marca fictícia **Casa de Linho**, com as 108
 perguntas respondidas. Serve para você ver o formato antes do primeiro cliente real.
@@ -295,8 +296,8 @@ ligado — não precisa mexer.
 
 ### Apagar um briefing
 
-Ainda não existe botão para isso. Por enquanto: Vercel → **Storage** → o store → localize o
-arquivo dentro de `briefings/` e apague. (Dá para pedir ao Claude para criar esse botão.)
+Abra o briefing no painel e role até o fim: há um botão **Excluir briefing**, que pede
+confirmação antes. A exclusão é definitiva — não existe lixeira.
 
 ---
 

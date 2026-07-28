@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { DeleteBriefing } from '@/components/admin/DeleteBriefing';
 import { SubmissionView } from '@/components/admin/SubmissionView';
 import { readSubmission } from '@/lib/submissions';
 
@@ -89,6 +90,11 @@ export default async function SubmissionPage({ params }: { params: Promise<{ id:
 
       <div className="mt-12">
         <SubmissionView submission={submission} />
+      </div>
+
+      {/* Longe dos botões do topo: exclusão não pode ficar ao alcance de um clique distraído. */}
+      <div className="mt-16 border-t border-line pt-8">
+        <DeleteBriefing id={id} empresa={submission.empresa} />
       </div>
     </main>
   );
