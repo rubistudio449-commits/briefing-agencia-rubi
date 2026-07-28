@@ -35,13 +35,6 @@ async function postToWebhook(url: string, payload: unknown): Promise<Response> {
 export async function POST(request: Request) {
   const url = webhookUrl();
 
-  if (!url) {
-    return NextResponse.json(
-      { error: 'Webhook não configurado. Defina WEBHOOK_URL no ambiente.' },
-      { status: 500 },
-    );
-  }
-
   let body: unknown;
   try {
     body = await request.json();
@@ -58,32 +51,57 @@ export async function POST(request: Request) {
   // o cliente envia apenas as respostas cruas.
   const payload = buildPayload(parsed.data.answers as Answers, parsed.data.startedAt);
 
-  // Guardar antes de enviar: se o webhook falhar, o briefing não se perde e
-  // continua acessível no painel interno.
+  // O painel interno é o destino principal: arquivar primeiro.
+  let arquivado: string | null = null;
   try {
-    await saveSubmission(payload);
+    arquivado = await saveSubmission(payload);
   } catch (error) {
     console.error('[briefing] falha ao arquivar o briefing:', error);
   }
 
-  let lastError = 'Falha ao entregar o briefing.';
+  // O webhook é uma integração opcional. Quando não há URL configurada, o
+  // briefing simplesmente fica no painel.
+  let encaminhado = false;
+  let erroWebhook: string | null = null;
 
-  // Uma retentativa cobre instabilidade momentânea do destino.
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    try {
-      const response = await postToWebhook(url, payload);
-      if (response.ok) {
-        return NextResponse.json({ ok: true, respondidas: payload.meta.respondidas });
+  if (url) {
+    // Uma retentativa cobre instabilidade momentânea do destino.
+    for (let attempt = 0; attempt < 2 && !encaminhado; attempt += 1) {
+      try {
+        const response = await postToWebhook(url, payload);
+        if (response.ok) {
+          encaminhado = true;
+        } else {
+          erroWebhook = `O destino respondeu com status ${response.status}.`;
+        }
+      } catch (error) {
+        erroWebhook =
+          error instanceof Error && error.name === 'AbortError'
+            ? 'O destino demorou demais para responder.'
+            : 'Não foi possível alcançar o destino do briefing.';
       }
-      lastError = `O destino respondeu com status ${response.status}.`;
-    } catch (error) {
-      lastError =
-        error instanceof Error && error.name === 'AbortError'
-          ? 'O destino demorou demais para responder.'
-          : 'Não foi possível alcançar o destino do briefing.';
     }
+
+    if (!encaminhado) console.error('[briefing] envio ao webhook falhou:', erroWebhook);
   }
 
-  console.error('[briefing] envio ao webhook falhou:', lastError);
-  return NextResponse.json({ error: lastError }, { status: 502 });
+  // Só falha para o cliente se o briefing não ficou guardado em lugar nenhum —
+  // perder 100 respostas por causa de uma integração fora do ar seria pior.
+  if (!arquivado && !encaminhado) {
+    return NextResponse.json(
+      {
+        error:
+          erroWebhook ??
+          'O briefing não pôde ser salvo. Conecte um Blob Store ou configure WEBHOOK_URL.',
+      },
+      { status: 502 },
+    );
+  }
+
+  return NextResponse.json({
+    ok: true,
+    respondidas: payload.meta.respondidas,
+    arquivado: Boolean(arquivado),
+    encaminhado,
+  });
 }

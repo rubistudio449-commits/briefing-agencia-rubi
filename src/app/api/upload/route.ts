@@ -15,6 +15,11 @@ const ALLOWED_CONTENT_TYPES = [
   'application/pdf',
 ];
 
+/**
+ * Diferente do arquivamento, o upload direto do navegador precisa emitir um
+ * token para o cliente, e `handleUpload` só faz isso a partir de um token de
+ * leitura/escrita — a autenticação por OIDC do store não serve aqui.
+ */
 const uploadsEnabled = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
 /**

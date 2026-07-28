@@ -20,9 +20,19 @@ normalmente, mas o envio final retorna erro — é o único ponto que exige conf
 
 | Variável | Obrigatória | Para quê |
 |---|---|---|
-| `WEBHOOK_URL` | sim | Destino das respostas (n8n, Make, Zapier, endpoint próprio). Lida apenas no servidor. |
-| `BLOB_READ_WRITE_TOKEN` | não | Habilita o upload de referências visuais **e o arquivamento dos briefings** para o painel interno. Criada ao conectar um Blob Store em **Storage → Blob** no painel da Vercel. |
+| `WEBHOOK_URL` | não | Encaminha uma cópia das respostas para n8n, Make, Zapier ou endpoint próprio. Lida apenas no servidor. |
+| Blob conectado | sim* | Arquiva os briefings para o painel interno. Basta **Storage → Blob → Connect** na Vercel. |
+| `BLOB_READ_WRITE_TOKEN` | não | Só é necessária para o **upload de arquivos pelo navegador**. Sem ela, os campos de referência aceitam apenas link. |
 | `ADMIN_PASSWORD` | não | Senha do painel interno em `/admin`. Sem ela, o painel exibe um aviso e não permite entrar. |
+
+\* O envio só falha quando o briefing não seria guardado em lugar nenhum — ou seja, sem Blob **e**
+sem webhook. Com qualquer um dos dois, o cliente conclui normalmente.
+
+Ao conectar um Blob Store, a Vercel usa hoje autenticação por **OIDC**, criando `BLOB_STORE_ID`
+em vez de `BLOB_READ_WRITE_TOKEN`. As operações de servidor (`put`, `get`, `list`) funcionam
+assim, e é o que o arquivamento usa. Já o upload direto do navegador precisa emitir um token para
+o cliente, o que exige `BLOB_READ_WRITE_TOKEN` — gere um na página do store se quiser que os
+clientes anexem imagens em vez de colar links.
 | `NEXT_PUBLIC_SITE_URL` | não | Domínio final, usado para montar a URL absoluta da imagem de Open Graph. Na Vercel é deduzido automaticamente. |
 
 `NEXT_PUBLIC_WEBHOOK_URL` também é aceito por compatibilidade, mas **prefira `WEBHOOK_URL`**:

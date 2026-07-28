@@ -35,7 +35,17 @@ export interface SubmissionSummary {
   arquivos: number;
 }
 
-const hasBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+/**
+ * Duas formas de autenticar no Blob, e a Vercel usa uma ou outra conforme como
+ * o store foi conectado:
+ *   - token de leitura/escrita (`BLOB_READ_WRITE_TOKEN`), modelo antigo;
+ *   - OIDC (`VERCEL_OIDC_TOKEN` + `BLOB_STORE_ID`), o padrão atual — o SDK
+ *     resolve sozinho, então basta o store existir.
+ * `put`, `get` e `list` funcionam nos dois. Só o upload direto do navegador
+ * (`handleUpload`, em /api/upload) exige o token de leitura/escrita.
+ */
+const hasBlob = () =>
+  Boolean(process.env.BLOB_READ_WRITE_TOKEN) || Boolean(process.env.BLOB_STORE_ID);
 
 /** Sem Blob, grava em arquivos locais — permite exercitar o painel sem a Vercel. */
 const writesToDisk = () => !hasBlob() && localEnabled();
