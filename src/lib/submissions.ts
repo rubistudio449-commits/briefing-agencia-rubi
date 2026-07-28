@@ -7,6 +7,19 @@ const PREFIX = 'briefings/';
 /** Blobs privados: só quem tem o token do Blob consegue ler. */
 const ACCESS = 'private' as const;
 
+/**
+ * Pasta local de fallback, sempre `.briefings` na raiz do projeto — caminho
+ * fixo de propósito: um caminho montado dinamicamente faz o Turbopack rastrear
+ * o projeto inteiro para dentro da função serverless.
+ *
+ * Ativa sozinha em desenvolvimento; fora dele exige `BRIEFINGS_LOCAL=1`. Na
+ * Vercel o sistema de arquivos é somente leitura, então lá o Blob é obrigatório.
+ */
+const LOCAL_FOLDER = '.briefings';
+
+const localEnabled = () =>
+  process.env.BRIEFINGS_LOCAL === '1' || process.env.NODE_ENV !== 'production';
+
 export interface StoredSubmission extends BriefingPayload {
   id: string;
 }
@@ -22,7 +35,15 @@ export interface SubmissionSummary {
   arquivos: number;
 }
 
-export const storageEnabled = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const hasBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+
+/** Sem Blob, grava em arquivos locais — permite exercitar o painel sem a Vercel. */
+const writesToDisk = () => !hasBlob() && localEnabled();
+
+export const storageEnabled = () => hasBlob() || writesToDisk();
+
+/** Sinaliza na interface que o arquivamento é temporário. */
+export const storageIsLocal = () => writesToDisk();
 
 const slugify = (value: string) =>
   value
@@ -40,6 +61,14 @@ function buildId(payload: BriefingPayload): string {
   return `${date}-${slugify(payload.empresa || payload.nome)}-${random}`;
 }
 
+/** O id vem da URL: impedir que `../` escape do prefixo. */
+const isSafeId = (id: string) => /^[a-z0-9-]+$/i.test(id);
+
+async function localPaths() {
+  const { join } = await import('node:path');
+  return { dir: join(process.cwd(), LOCAL_FOLDER), join };
+}
+
 /**
  * Guarda o briefing antes de chamar o webhook: se o destino estiver fora do ar,
  * as respostas continuam disponíveis no painel.
@@ -49,8 +78,17 @@ export async function saveSubmission(payload: BriefingPayload): Promise<string |
 
   const id = buildId(payload);
   const stored: StoredSubmission = { ...payload, id };
+  const body = JSON.stringify(stored, null, 2);
 
-  await put(`${PREFIX}${id}.json`, JSON.stringify(stored, null, 2), {
+  if (writesToDisk()) {
+    const fs = await import('node:fs/promises');
+    const { dir, join } = await localPaths();
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(join(dir, `${id}.json`), body, 'utf8');
+    return id;
+  }
+
+  await put(`${PREFIX}${id}.json`, body, {
     access: ACCESS,
     contentType: 'application/json',
     addRandomSuffix: false,
@@ -62,11 +100,10 @@ export async function saveSubmission(payload: BriefingPayload): Promise<string |
 export async function listSubmissions(): Promise<SubmissionSummary[]> {
   if (!storageEnabled()) return [];
 
-  const { blobs } = await list({ prefix: PREFIX, limit: 200 });
+  const ids = writesToDisk() ? await listLocalIds() : await listBlobIds();
 
   const entries = await Promise.all(
-    blobs.map(async (blob) => {
-      const id = blob.pathname.slice(PREFIX.length).replace(/\.json$/, '');
+    ids.map(async (id) => {
       const submission = await readSubmission(id);
       if (!submission) return null;
 
@@ -91,12 +128,33 @@ export async function listSubmissions(): Promise<SubmissionSummary[]> {
     .sort((a, b) => b.enviadoEm.localeCompare(a.enviadoEm));
 }
 
+async function listBlobIds(): Promise<string[]> {
+  const { blobs } = await list({ prefix: PREFIX, limit: 200 });
+  return blobs.map((blob) => blob.pathname.slice(PREFIX.length).replace(/\.json$/, ''));
+}
+
+async function listLocalIds(): Promise<string[]> {
+  try {
+    const fs = await import('node:fs/promises');
+    const { dir } = await localPaths();
+    const files = await fs.readdir(dir);
+    return files.filter((file) => file.endsWith('.json')).map((file) => file.replace(/\.json$/, ''));
+  } catch {
+    return [];
+  }
+}
+
 export async function readSubmission(id: string): Promise<StoredSubmission | null> {
-  if (!storageEnabled()) return null;
-  // O id vem da URL: impedir que `../` escape do prefixo.
-  if (!/^[a-z0-9-]+$/i.test(id)) return null;
+  if (!storageEnabled() || !isSafeId(id)) return null;
 
   try {
+    if (writesToDisk()) {
+      const fs = await import('node:fs/promises');
+      const { dir, join } = await localPaths();
+      const raw = await fs.readFile(join(dir, `${id}.json`), 'utf8');
+      return JSON.parse(raw) as StoredSubmission;
+    }
+
     const result = await get(`${PREFIX}${id}.json`, { access: ACCESS, useCache: false });
     if (!result) return null;
     return (await new Response(result.stream).json()) as StoredSubmission;

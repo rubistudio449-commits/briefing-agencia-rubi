@@ -80,7 +80,9 @@ Cada briefing é arquivado como um JSON **privado** no Vercel Blob (`briefings/<
 gravado **antes** da chamada ao webhook — se o destino estiver fora do ar, as respostas continuam
 disponíveis no painel. A sessão usa um cookie `HttpOnly` assinado com HMAC, válido por 7 dias.
 
-Sem `BLOB_READ_WRITE_TOKEN` o painel abre normalmente, mas avisa que o arquivamento está inativo.
+Em desenvolvimento, sem Blob configurado, os briefings caem numa pasta local `.briefings/`
+(ignorada pelo Git) — assim dá para exercitar o painel inteiro sem depender da Vercel. Para
+usar esse modo com `next start`, defina `BRIEFINGS_LOCAL=1`.
 
 ## Identidade visual
 

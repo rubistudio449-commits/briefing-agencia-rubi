@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { listSubmissions, storageEnabled } from '@/lib/submissions';
+import { listSubmissions, storageEnabled, storageIsLocal } from '@/lib/submissions';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +30,14 @@ export default async function AdminHomePage() {
           O arquivamento não está ativo. Conecte um Blob Store ao projeto na Vercel
           (<span className="text-accent-soft">Storage → Blob → Connect</span>) para que os briefings
           enviados fiquem guardados aqui.
+        </p>
+      ) : null}
+
+      {storageIsLocal() ? (
+        <p className="mt-10 rounded-lg border border-line p-5 text-sm leading-relaxed text-muted">
+          Ambiente de desenvolvimento: os briefings estão sendo gravados na pasta local{' '}
+          <span className="text-accent-soft">.briefings</span>. Em produção é o Vercel Blob que
+          guarda tudo.
         </p>
       ) : null}
 

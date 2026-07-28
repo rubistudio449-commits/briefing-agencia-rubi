@@ -1,5 +1,4 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import { ImageResponse } from 'next/og';
 
 import { brand, brandColors, brandCopy } from '@/config/brand';
@@ -9,20 +8,15 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
 /**
- * `ImageResponse` não resolve caminhos de `/public`; o arquivo é lido do disco
- * e embutido como data URI durante a geração.
+ * Os arquivos ficam ao lado desta rota e são lidos por URL relativa ao módulo.
+ * Ler de `/public` com `fs` e `process.cwd()` faz o Next rastrear o projeto
+ * inteiro para dentro da função, inchando o bundle.
  */
-const dataUri = (relativePath: string) => {
-  const file = fs.readFileSync(path.join(process.cwd(), 'public', relativePath));
-  return `data:image/png;base64,${file.toString('base64')}`;
-};
-
-/** O `ImageResponse` não enxerga as fontes do `next/font`; ela vai embutida. */
-const displayFont = () =>
-  fs.readFileSync(path.join(process.cwd(), 'src', 'assets', 'BodoniModa-Regular.ttf'));
+const asset = (file: string) => readFileSync(new URL(file, import.meta.url));
 
 export default function OpengraphImage() {
-  const wordmark = dataUri('brand/wordmark.png');
+  const font = asset('./og-display-font.ttf');
+  const wordmarkSrc = `data:image/png;base64,${asset('./og-wordmark.png').toString('base64')}`;
 
   return new ImageResponse(
     (
@@ -38,7 +32,7 @@ export default function OpengraphImage() {
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={wordmark} alt="" width={340} height={83} />
+        <img src={wordmarkSrc} alt="" width={340} height={83} />
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <span
@@ -74,7 +68,7 @@ export default function OpengraphImage() {
     ),
     {
       ...size,
-      fonts: [{ name: 'Bodoni Moda', data: displayFont(), style: 'normal', weight: 400 }],
+      fonts: [{ name: 'Bodoni Moda', data: font, style: 'normal', weight: 400 }],
     },
   );
 }

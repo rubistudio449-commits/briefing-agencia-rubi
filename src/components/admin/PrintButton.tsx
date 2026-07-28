@@ -11,8 +11,8 @@ export function PrintButton() {
         Baixar PDF
       </button>
       <p className="text-sm text-neutral-500">
-        Na janela que abrir, escolha <strong className="text-black">Salvar como PDF</strong> em
-        &ldquo;Destino&rdquo;.
+        Na janela que abrir, escolha <strong className="text-black">Salvar como PDF</strong>{' '}
+        em &ldquo;Destino&rdquo;.
       </p>
     </div>
   );
