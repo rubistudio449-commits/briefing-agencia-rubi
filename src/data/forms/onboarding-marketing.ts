@@ -313,7 +313,7 @@ const questions: readonly Question[] = [
   },
   {
     id: 'traf_plataformas', section: 17, label: 'Em quais plataformas?',
-    type: 'multiSelect', required: false, otherOption: 'Outras',
+    type: 'checkboxGrid', required: false, otherOption: 'Outras',
     options: ['Meta Ads', 'Google Ads', 'YouTube Ads', 'TikTok Ads', 'Outras'],
     showIf: notAnsweredAs('traf_ja_investiu', 'Nunca', 'Não sei'),
   },
@@ -359,7 +359,7 @@ const questions: readonly Question[] = [
   { id: 'gads_ja_fez', section: 20, label: 'Já realizou campanhas no Google?', type: 'radioCards', required: false, options: ['Sim', 'Não', 'Não sei'] },
   {
     id: 'gads_tipos', section: 20, label: 'Quais tipos de campanha já usaram?',
-    type: 'multiSelect', required: false, showIf: answeredAs('gads_ja_fez', 'Sim'),
+    type: 'checkboxGrid', required: false, showIf: answeredAs('gads_ja_fez', 'Sim'),
     options: ['Pesquisa', 'Display', 'YouTube', 'Performance Max', 'Shopping', 'Remarketing', 'Não sei'],
   },
   { id: 'gads_campanha_ativa', section: 20, label: 'Existe campanha ativa?', type: 'radioCards', required: false, options: ['Sim', 'Não', 'Não sei'] },
@@ -374,7 +374,7 @@ const questions: readonly Question[] = [
   { id: 'gmb_quem_acessa', section: 21, label: 'Quem possui acesso administrativo ao perfil?', type: 'shortText', required: false, showIf: answeredAs('gmb_possui', 'Sim') },
   {
     id: 'gmb_atualizados', section: 21, label: 'O que já está atualizado no perfil?',
-    type: 'multiSelect', required: false, showIf: answeredAs('gmb_possui', 'Sim'),
+    type: 'checkboxGrid', required: false, showIf: answeredAs('gmb_possui', 'Sim'),
     options: ['Endereço', 'Telefone', 'Site ou WhatsApp', 'Horários', 'Serviços', 'Fotos', 'Descrição', 'Localização'],
   },
   { id: 'gmb_avaliacoes', section: 21, label: 'A empresa recebe avaliações?', type: 'radioCards', required: false, options: ['Sim, com frequência', 'Poucas', 'Não'] },
@@ -388,7 +388,7 @@ const questions: readonly Question[] = [
   { id: 'site_landing_pages', section: 22, label: 'Possuem landing pages?', type: 'longText', required: false },
   {
     id: 'site_onde_converte', section: 22, label: 'Onde o cliente converte hoje?',
-    type: 'multiSelect', required: true, otherOption: 'Outro',
+    type: 'checkboxGrid', required: true, otherOption: 'Outro',
     options: ['WhatsApp', 'Formulário', 'Ligação', 'Compra no site', 'Agendamento', 'Direct', 'Outro'],
   },
   { id: 'site_pagina_campanhas', section: 22, label: 'Existe página específica para campanhas?', type: 'longText', required: false },
@@ -399,7 +399,7 @@ const questions: readonly Question[] = [
   { id: 'ga_search_console', section: 23, label: 'Possui Google Search Console?', type: 'radioCards', required: false, options: ['Sim', 'Não', 'Não sei'] },
   {
     id: 'ga_conversoes', section: 23, label: 'Quais conversões estão configuradas?',
-    type: 'multiSelect', required: false, otherOption: 'Outras',
+    type: 'checkboxGrid', required: false, otherOption: 'Outras',
     options: ['WhatsApp', 'Formulários', 'Ligações', 'Compras', 'Agendamentos', 'Leads', 'Outras', 'Não sei'],
   },
   {
@@ -411,7 +411,7 @@ const questions: readonly Question[] = [
   // 24 | LEADS E ATENDIMENTO
   {
     id: 'leads_destino', section: 24, label: 'Para onde os leads devem ser direcionados?',
-    type: 'multiSelect', required: true, otherOption: 'Outro',
+    type: 'checkboxGrid', required: true, otherOption: 'Outro',
     options: ['WhatsApp', 'Direct', 'Site', 'Landing Page', 'Formulário', 'Ligação', 'Outro'],
   },
   { id: 'leads_whatsapp', section: 24, label: 'Qual WhatsApp será usado nas campanhas?', type: 'phone', required: true },
@@ -438,7 +438,7 @@ const questions: readonly Question[] = [
   { id: 'seg_regioes_evitar', section: 26, label: 'Existe região que NÃO deve receber anúncios?', type: 'longText', required: false },
   {
     id: 'seg_abrangencia', section: 26, label: 'Qual é a abrangência do atendimento?',
-    type: 'multiSelect', required: true,
+    type: 'checkboxGrid', required: true,
     options: ['Local', 'Regional', 'Estadual', 'Nacional', 'Online'],
   },
   { id: 'seg_publico_atual', section: 26, label: 'Quem é o público que mais compra atualmente?', type: 'longText', required: false },
