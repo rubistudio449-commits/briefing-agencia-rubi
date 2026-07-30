@@ -39,7 +39,6 @@ em vez de `BLOB_READ_WRITE_TOKEN`. As operações de servidor (`put`, `get`, `li
 assim, e é o que o arquivamento usa. Já o upload direto do navegador precisa emitir um token para
 o cliente, o que exige `BLOB_READ_WRITE_TOKEN` — gere um na página do store se quiser que os
 clientes anexem imagens em vez de colar links.
-| `NEXT_PUBLIC_SITE_URL` | não | Domínio final, usado para montar a URL absoluta da imagem de Open Graph. Na Vercel é deduzido automaticamente. |
 
 `NEXT_PUBLIC_WEBHOOK_URL` também é aceito por compatibilidade, mas **prefira `WEBHOOK_URL`**:
 variáveis `NEXT_PUBLIC_` são embutidas no JavaScript enviado ao navegador, o que deixaria o
