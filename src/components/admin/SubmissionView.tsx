@@ -1,4 +1,4 @@
-import { questions, sections } from '@/data/briefing';
+import { resolveForm } from '@/data/forms';
 import type { StoredSubmission } from '@/lib/submissions';
 
 interface SubmissionViewProps {
@@ -12,6 +12,8 @@ const renderAnswer = (value: string | string[]) =>
 
 export function SubmissionView({ submission, variant = 'screen' }: SubmissionViewProps) {
   const isPrint = variant === 'print';
+  // Briefings antigos não têm slug: caem no formulário padrão.
+  const { sections, questions } = resolveForm(submission.formulario);
 
   return (
     <div className="space-y-12">

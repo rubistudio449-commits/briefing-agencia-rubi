@@ -1,11 +1,12 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
-import { sectionLabel } from '@/data/briefing';
-import type { Question } from '@/types/briefing';
+import { sectionLabel } from '@/data/forms';
+import type { BriefingForm, Question } from '@/types/briefing';
 import type { SubmitStatus } from '@/hooks/useBriefingFlow';
 
 interface ReviewScreenProps {
+  form: BriefingForm;
   answered: number;
   total: number;
   pending: Question[];
@@ -16,6 +17,7 @@ interface ReviewScreenProps {
 }
 
 export function ReviewScreen({
+  form,
   answered,
   total,
   pending,
@@ -66,7 +68,7 @@ export function ReviewScreen({
                 className="group flex w-full items-center gap-4 rounded-lg border border-line px-4 py-3 text-left transition-colors hover:border-line-strong hover:bg-paper/[0.02]"
               >
                 <span className="type-eyebrow shrink-0 text-faint">
-                  {sectionLabel(question.section).split(' | ')[0]}
+                  {sectionLabel(form, question.section).split(' | ')[0]}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-sm text-muted group-hover:text-paper">
                   {question.label}

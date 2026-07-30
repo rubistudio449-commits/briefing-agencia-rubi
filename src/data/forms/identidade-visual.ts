@@ -9,7 +9,13 @@
  *   9+ opções, múltipla          -> multiSelect (lista suspensa com busca)
  */
 
-import { isFileAnswer, type Answers, type Question, type Section } from '@/types/briefing';
+import {
+  isFileAnswer,
+  type Answers,
+  type BriefingForm,
+  type Question,
+  type Section,
+} from '@/types/briefing';
 
 const answeredAs = (questionId: string, value: string) => (answers: Answers) =>
   answers[questionId] === value;
@@ -1105,12 +1111,33 @@ export const questions: readonly Question[] = [
   },
 ];
 
-export const sectionById = new Map(sections.map((section) => [section.id, section]));
-
-export const questionById = new Map(questions.map((question) => [question.id, question]));
-
-/** Rótulo usado no payload e no resumo em Markdown: "02 | SOBRE A MARCA". */
-export const sectionLabel = (sectionId: number) => {
-  const section = sectionById.get(sectionId);
-  return section ? `${section.label} | ${section.title.toUpperCase()}` : String(sectionId);
+export const identidadeVisual: BriefingForm = {
+  slug: 'identidade-visual',
+  name: 'Briefing de Identidade Visual',
+  // Endereços originais preservados: já foram enviados a clientes.
+  landingPath: '/',
+  flowPath: '/briefing',
+  storageKey: 'rubi_briefing_v1',
+  estimatedMinutes: 25,
+  sections,
+  questions,
+  copy: {
+    eyebrow: 'Branding & Identidade Visual',
+    welcomeTitle: 'Briefing de Identidade Visual',
+    welcomeLead:
+      'Uma identidade visual não começa pela escolha de uma cor, fonte ou símbolo. Ela começa pela compreensão da essência da marca.',
+    welcomeBody: [
+      'Este briefing é uma das etapas mais importantes do nosso processo criativo. Através dele, iremos conhecer a história do seu negócio, seu propósito, público, diferenciais, personalidade, posicionamento e a percepção que você deseja construir.',
+      'Todas essas informações serão utilizadas como base para desenvolver um universo visual que não seja apenas bonito, mas que tenha significado, coerência e personalidade.',
+      'Por isso, responda cada pergunta com atenção e compartilhe o máximo de detalhes possível. Não existem respostas certas ou erradas — queremos conhecer a sua visão.',
+    ],
+    welcomeClosing:
+      'Ao final deste processo, nosso objetivo é transformar a essência da sua marca em uma identidade visual autêntica, consistente e reconhecível.',
+    successTitle: 'Agora, a criação começa.',
+    successBody: [
+      'Obrigada por dedicar seu tempo a esta etapa.',
+      'Cada resposta será analisada cuidadosamente pela nossa equipe e servirá como base para o desenvolvimento do conceito e da identidade visual da sua marca.',
+      'A partir daqui, começamos a transformar histórias, ideias, sentimentos e significados em uma identidade capaz de representar visualmente tudo aquilo que torna a sua marca única.',
+    ],
+  },
 };

@@ -1,6 +1,6 @@
 import type { Answers } from '@/types/briefing';
 
-const STORAGE_KEY = 'rubi_briefing_v1';
+
 const STORAGE_VERSION = 1;
 
 export interface BriefingDraft {
@@ -14,11 +14,11 @@ export interface BriefingDraft {
 
 const isBrowser = () => typeof window !== 'undefined';
 
-export function loadDraft(): BriefingDraft | null {
+export function loadDraft(storageKey: string): BriefingDraft | null {
   if (!isBrowser()) return null;
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(storageKey);
     if (!raw) return null;
 
     const parsed = JSON.parse(raw) as Partial<BriefingDraft>;
@@ -39,7 +39,7 @@ export function loadDraft(): BriefingDraft | null {
   }
 }
 
-export function saveDraft(draft: Omit<BriefingDraft, 'version' | 'updatedAt'>): void {
+export function saveDraft(storageKey: string, draft: Omit<BriefingDraft, 'version' | 'updatedAt'>): void {
   if (!isBrowser()) return;
 
   try {
@@ -48,16 +48,16 @@ export function saveDraft(draft: Omit<BriefingDraft, 'version' | 'updatedAt'>): 
       version: STORAGE_VERSION,
       updatedAt: Date.now(),
     };
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    window.localStorage.setItem(storageKey, JSON.stringify(payload));
   } catch {
     // Cota estourada ou modo privado: seguir sem persistência é melhor que quebrar.
   }
 }
 
-export function clearDraft(): void {
+export function clearDraft(storageKey: string): void {
   if (!isBrowser()) return;
   try {
-    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(storageKey);
   } catch {
     /* ignora */
   }

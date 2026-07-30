@@ -5,14 +5,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { buildSteps, pendingRequired } from '@/lib/steps';
 import { clearDraft, loadDraft, saveDraft, type BriefingDraft } from '@/lib/storage';
 import { validateAnswer } from '@/lib/validation';
-import { otherFieldId, type AnswerValue, type Answers } from '@/types/briefing';
+import { otherFieldId, type AnswerValue, type Answers, type BriefingForm } from '@/types/briefing';
 
 export type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error';
 
 const AUTOSAVE_DELAY = 400;
 
 
-export function useBriefingFlow() {
+export function useBriefingFlow(form: BriefingForm) {
   const [answers, setAnswers] = useState<Answers>({});
   const [stepId, setStepId] = useState<string | null>(null);
   const [direction, setDirection] = useState<1 | -1>(1);
@@ -31,10 +31,10 @@ export function useBriefingFlow() {
   // HTML hidratado divergir do prerender. É uma leitura única, na montagem.
   /* eslint-disable react-hooks/set-state-in-effect -- leitura única do localStorage na montagem; não há fonte síncrona equivalente durante a renderização */
   useEffect(() => {
-    const draft = loadDraft();
+    const draft = loadDraft(form.storageKey);
     if (draft && Object.keys(draft.answers).length > 0) setDraftFound(draft);
     setDraftChecked(true);
-  }, []);
+  }, [form.storageKey]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   /**
@@ -43,7 +43,7 @@ export function useBriefingFlow() {
    */
   const hydrated = draftChecked && draftFound === null;
 
-  const steps = useMemo(() => buildSteps(answers), [answers]);
+  const steps = useMemo(() => buildSteps(form, answers), [form, answers]);
 
   const stepIndex = useMemo(() => {
     if (!stepId) return 0;
@@ -71,18 +71,18 @@ export function useBriefingFlow() {
   }, [draftFound]);
 
   const discardDraft = useCallback(() => {
-    clearDraft();
+    clearDraft(form.storageKey);
     setDraftFound(null);
-  }, []);
+  }, [form.storageKey]);
 
   // Salvamento automático, só depois de resolvida a retomada.
   useEffect(() => {
     if (!hydrated || status === 'success') return;
     const timer = window.setTimeout(() => {
-      saveDraft({ answers, stepId, startedAt });
+      saveDraft(form.storageKey, { answers, stepId, startedAt });
     }, AUTOSAVE_DELAY);
     return () => window.clearTimeout(timer);
-  }, [answers, stepId, startedAt, hydrated, status]);
+  }, [answers, stepId, startedAt, hydrated, status, form.storageKey]);
 
   const setAnswer = useCallback((questionId: string, value: AnswerValue) => {
     setAnswers((current) => ({ ...current, [questionId]: value }));
@@ -155,7 +155,7 @@ export function useBriefingFlow() {
 
   const submit = useCallback(async () => {
     // Uma obrigatória pode ter ficado para trás; leva o usuário até ela.
-    const pending = pendingRequired(answers, validateAnswer);
+    const pending = pendingRequired(form, answers, validateAnswer);
     if (pending.length > 0) {
       goToQuestion(pending[0].id);
       setError(validateAnswer(pending[0], answers));
@@ -169,7 +169,7 @@ export function useBriefingFlow() {
       const response = await fetch('/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers, startedAt }),
+        body: JSON.stringify({ form: form.slug, answers, startedAt }),
       });
 
       if (!response.ok) {
@@ -179,7 +179,7 @@ export function useBriefingFlow() {
 
       setStatus('success');
       setCompletedAt(Date.now());
-      clearDraft();
+      clearDraft(form.storageKey);
     } catch (caught) {
       setStatus('error');
       setSubmitError(
@@ -188,7 +188,7 @@ export function useBriefingFlow() {
           : 'Não foi possível enviar o briefing. Tente novamente.',
       );
     }
-  }, [answers, startedAt, goToQuestion]);
+  }, [form, answers, startedAt, goToQuestion]);
 
   // Esc volta uma tela, de qualquer lugar do fluxo.
   useEffect(() => {
@@ -225,6 +225,6 @@ export function useBriefingFlow() {
     submit,
     resumeDraft,
     discardDraft,
-    pending: () => pendingRequired(answers, validateAnswer),
+    pending: () => pendingRequired(form, answers, validateAnswer),
   };
 }

@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 
 import { BriefingFlow } from '@/components/flow/BriefingFlow';
-import { seo } from '@/config/brand';
+import { defaultForm } from '@/data/forms';
 
 export const metadata: Metadata = {
-  title: seo.title,
-  description: seo.description,
+  title: `${defaultForm.name} | RUBI Agência`,
+  robots: { index: false, follow: false },
 };
 
 export default function BriefingPage() {
-  return <BriefingFlow />;
+  return <BriefingFlow slug={defaultForm.slug} />;
 }

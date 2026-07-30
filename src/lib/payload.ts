@@ -1,6 +1,12 @@
-import { questions, sectionLabel } from '@/data/briefing';
+import { sectionLabel } from '@/data/forms';
 import { isBlank } from '@/lib/validation';
-import { isFileAnswer, otherFieldId, type Answers, type Question } from '@/types/briefing';
+import {
+  isFileAnswer,
+  otherFieldId,
+  type Answers,
+  type BriefingForm,
+  type Question,
+} from '@/types/briefing';
 
 export interface AnswerEntry {
   pergunta: string;
@@ -15,6 +21,9 @@ export interface FileEntry {
 }
 
 export interface BriefingPayload {
+  /** Qual formulário originou o briefing. */
+  formulario: string;
+  formularioNome: string;
   nome: string;
   email: string;
   whatsapp: string;
@@ -31,9 +40,16 @@ export interface BriefingPayload {
   origem: string;
 }
 
-export const ORIGIN = 'Briefing Identidade Visual';
-
 const asText = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
+
+/** Primeiro campo preenchido entre vários candidatos — os ids mudam por formulário. */
+const firstOf = (answers: Answers, ...ids: string[]): string => {
+  for (const id of ids) {
+    const value = asText(answers[id]);
+    if (value) return value;
+  }
+  return '';
+};
 
 /**
  * Aplica a resposta complementar de "Outro": a opção crua vira "Outro: <texto>",
@@ -52,11 +68,15 @@ function withOtherText(question: Question, answers: Answers): string | string[] 
   return '';
 }
 
-export function buildPayload(answers: Answers, startedAt?: number): BriefingPayload {
+export function buildPayload(
+  form: BriefingForm,
+  answers: Answers,
+  startedAt?: number,
+): BriefingPayload {
   const respostas: Record<string, AnswerEntry> = {};
   const arquivos: Record<string, FileEntry> = {};
 
-  for (const question of questions) {
+  for (const question of form.questions) {
     // Perguntas ocultas por condicional não entram no envio.
     if (question.showIf && !question.showIf(answers)) continue;
 
@@ -71,7 +91,7 @@ export function buildPayload(answers: Answers, startedAt?: number): BriefingPayl
       };
       respostas[question.id] = {
         pergunta: question.label,
-        secao: sectionLabel(question.section),
+        secao: sectionLabel(form, question.section),
         resposta: [...value.files.map((file) => file.url), value.link.trim()].filter(Boolean),
       };
       continue;
@@ -79,7 +99,7 @@ export function buildPayload(answers: Answers, startedAt?: number): BriefingPayl
 
     respostas[question.id] = {
       pergunta: question.label,
-      secao: sectionLabel(question.section),
+      secao: sectionLabel(form, question.section),
       resposta: withOtherText(question, answers),
     };
   }
@@ -90,20 +110,22 @@ export function buildPayload(answers: Answers, startedAt?: number): BriefingPayl
       : null;
 
   return {
-    nome: asText(answers.contato_nome),
-    email: asText(answers.contato_email),
-    whatsapp: asText(answers.contato_whatsapp),
-    empresa: asText(answers.marca_nome),
+    formulario: form.slug,
+    formularioNome: form.name,
+    nome: firstOf(answers, 'contato_nome', 'resp_nome'),
+    email: firstOf(answers, 'contato_email', 'resp_email'),
+    whatsapp: firstOf(answers, 'contato_whatsapp', 'resp_whatsapp'),
+    empresa: firstOf(answers, 'marca_nome', 'empresa_nome'),
     respostas,
     arquivos,
-    resumoMarkdown: buildMarkdown(answers),
+    resumoMarkdown: buildMarkdown(form, answers),
     meta: {
-      totalPerguntas: questions.length,
+      totalPerguntas: form.questions.length,
       respondidas: Object.keys(respostas).length,
       duracaoSegundos,
     },
     enviadoEm: new Date().toISOString(),
-    origem: ORIGIN,
+    origem: form.name,
   };
 }
 
@@ -111,14 +133,14 @@ export function buildPayload(answers: Answers, startedAt?: number): BriefingPayl
  * Versão legível do briefing. Permite que o destino do webhook encaminhe o
  * conteúdo por e-mail ou WhatsApp sem precisar percorrer o JSON.
  */
-export function buildMarkdown(answers: Answers): string {
-  const lines: string[] = [`# Briefing de Identidade Visual`];
-  const brandName = asText(answers.marca_nome);
+export function buildMarkdown(form: BriefingForm, answers: Answers): string {
+  const lines: string[] = [`# ${form.name}`];
+  const brandName = firstOf(answers, 'marca_nome', 'empresa_nome');
   if (brandName) lines.push(`**Marca:** ${brandName}`);
 
   let currentSection: number | null = null;
 
-  for (const question of questions) {
+  for (const question of form.questions) {
     if (question.showIf && !question.showIf(answers)) continue;
 
     const value = answers[question.id];
@@ -126,7 +148,7 @@ export function buildMarkdown(answers: Answers): string {
 
     if (question.section !== currentSection) {
       currentSection = question.section;
-      lines.push('', `## ${sectionLabel(question.section)}`);
+      lines.push('', `## ${sectionLabel(form, question.section)}`);
     }
 
     let rendered: string;

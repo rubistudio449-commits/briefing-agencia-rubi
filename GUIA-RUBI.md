@@ -9,7 +9,8 @@ Claude. Escrito para quem não programa: cada passo é literal.
 
 | | |
 |---|---|
-| **Formulário do cliente** | https://briefing-agencia-rubi.vercel.app |
+| **Briefing de Identidade Visual** | https://briefing-agencia-rubi.vercel.app |
+| **Onboarding de Marketing** | https://briefing-agencia-rubi.vercel.app/onboarding-marketing |
 | **Painel interno** | https://briefing-agencia-rubi.vercel.app/admin |
 | **Código** | https://github.com/rubistudio449-commits/briefing-agencia-rubi |
 | **Hospedagem** | Vercel, time RUBI AGENCIA |
@@ -25,8 +26,10 @@ Se ele fechar o navegador no meio, ao voltar retoma de onde parou. Nada se perde
 - Clique em um deles para ver todas as respostas, organizadas nas 21 seções
 - **Baixar PDF** → abre a janela de impressão → escolha **Salvar como PDF** em "Destino"
 - No fim da página, **Excluir briefing** remove o registro (com confirmação)
+- Os briefings de tipos diferentes aparecem juntos, com filtro por tipo no topo
+- **Formulários**, no menu, lista os questionários ativos com todas as perguntas e o link de cada um
 
-Já existe um briefing de exemplo lá dentro, da marca fictícia **Casa de Linho**, com as 108
+Já existe um briefing de exemplo lá dentro, da marca fictícia **Casa de Linho**, com as
 perguntas respondidas. Serve para você ver o formato antes do primeiro cliente real.
 
 ### Trocar a senha do painel
@@ -174,8 +177,16 @@ Claude: *"desfaça o último commit e volte ao estado anterior"*.
 
 ## 6. Mudar as perguntas você mesma
 
-Se preferir editar na mão, todas as perguntas estão em **um único arquivo**:
-`src/data/briefing.ts`
+Cada formulário tem o seu próprio arquivo:
+
+| Formulário | Arquivo |
+|---|---|
+| Identidade Visual | `src/data/forms/identidade-visual.ts` |
+| Onboarding de Marketing | `src/data/forms/onboarding-marketing.ts` |
+
+Para criar um formulário novo, copie um desses arquivos, troque as perguntas e registre-o em
+`src/data/forms.ts`. O endereço nasce do `slug`: um formulário com `slug: 'atendimento'` fica
+em `/atendimento`.
 
 Cada pergunta é um bloco assim:
 
@@ -266,7 +277,7 @@ Digamos um "Briefing de Social Media", separado deste.
 2. Volte à página inicial do repositório → **Use this template → Create a new repository** →
    dê o nome novo, ex.: `briefing-social-media`
 3. Clone na sua máquina como no passo 3, trocando o endereço
-4. Reescreva `src/data/briefing.ts` com as perguntas novas — ou peça ao Claude:
+4. Reescreva o arquivo do formulário em `src/data/forms/` com as perguntas novas — ou peça ao Claude:
    *"substitua as perguntas por estas aqui: [cole a lista]"*
 5. Ajuste os textos de abertura em `src/config/brand.ts`
 6. Na Vercel: **Add New → Project** → importe o repositório novo

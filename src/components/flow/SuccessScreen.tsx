@@ -3,9 +3,10 @@
 import { motion, useReducedMotion } from 'motion/react';
 
 import { BrandSymbol, Wordmark } from '@/components/brand/Wordmark';
-import { brandCopy } from '@/config/brand';
+import type { BriefingForm } from '@/types/briefing';
 
 interface SuccessScreenProps {
+  form: BriefingForm;
   durationSeconds: number | null;
 }
 
@@ -15,7 +16,8 @@ const formatDuration = (seconds: number) => {
   return `${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`;
 };
 
-export function SuccessScreen({ durationSeconds }: SuccessScreenProps) {
+export function SuccessScreen({ form, durationSeconds }: SuccessScreenProps) {
+  const copy = form.copy;
   const reduced = useReducedMotion();
 
   return (
@@ -35,10 +37,10 @@ export function SuccessScreen({ durationSeconds }: SuccessScreenProps) {
         transition={{ duration: 0.6, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
         className="mt-10 max-w-xl"
       >
-        <h1 className="type-display text-paper">{brandCopy.successTitle}</h1>
+        <h1 className="type-display text-paper">{copy.successTitle}</h1>
 
         <div className="mt-8 space-y-4 text-[0.9375rem] leading-relaxed text-muted">
-          {brandCopy.successBody.map((paragraph) => (
+          {copy.successBody.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
         </div>

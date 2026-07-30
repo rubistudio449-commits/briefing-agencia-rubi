@@ -26,6 +26,8 @@ export interface StoredSubmission extends BriefingPayload {
 
 export interface SubmissionSummary {
   id: string;
+  /** Slug do formulário; ausente nos briefings anteriores aos vários formulários. */
+  formulario?: string;
   empresa: string;
   nome: string;
   email: string;
@@ -113,12 +115,13 @@ export async function listSubmissions(): Promise<SubmissionSummary[]> {
   const ids = writesToDisk() ? await listLocalIds() : await listBlobIds();
 
   const entries = await Promise.all(
-    ids.map(async (id) => {
+    ids.map(async (id): Promise<SubmissionSummary | null> => {
       const submission = await readSubmission(id);
       if (!submission) return null;
 
       return {
         id,
+        formulario: submission.formulario,
         empresa: submission.empresa,
         nome: submission.nome,
         email: submission.email,
@@ -129,7 +132,7 @@ export async function listSubmissions(): Promise<SubmissionSummary[]> {
           (total, entry) => total + entry.urls.length,
           0,
         ),
-      } satisfies SubmissionSummary;
+      };
     }),
   );
 

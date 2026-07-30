@@ -11,11 +11,18 @@ import { SectionIntro } from '@/components/flow/SectionIntro';
 import { SuccessScreen } from '@/components/flow/SuccessScreen';
 import { useBriefingFlow } from '@/hooks/useBriefingFlow';
 import { countAnswered } from '@/lib/storage';
+import { resolveForm } from '@/data/forms';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-export function BriefingFlow() {
-  const flow = useBriefingFlow();
+/**
+ * Recebe o slug, não o formulário: as perguntas carregam funções de condicional
+ * (`showIf`), e funções não podem ser serializadas de um Server Component para
+ * um Client Component. O registro é resolvido aqui, já no cliente.
+ */
+export function BriefingFlow({ slug }: { slug: string }) {
+  const form = resolveForm(slug);
+  const flow = useBriefingFlow(form);
   const reduced = useReducedMotion();
 
   const {
@@ -62,6 +69,7 @@ export function BriefingFlow() {
   if (status === 'success') {
     return (
       <SuccessScreen
+        form={form}
         durationSeconds={completedAt ? Math.round((completedAt - startedAt) / 1000) : null}
       />
     );
@@ -119,6 +127,7 @@ export function BriefingFlow() {
 
               {current?.kind === 'review' ? (
                 <ReviewScreen
+                  form={form}
                   answered={countAnswered(answers)}
                   total={totalQuestions}
                   pending={pendingRequired}

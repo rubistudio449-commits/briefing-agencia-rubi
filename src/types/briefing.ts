@@ -64,6 +64,35 @@ export interface Section {
   intro: string;
 }
 
+/**
+ * Um formulário completo. A aplicação serve vários: cada um traz suas próprias
+ * perguntas, textos e endereços, e tudo o mais é compartilhado.
+ */
+export interface BriefingForm {
+  /** Identificador na URL e no arquivamento. */
+  slug: string;
+  /** Nome curto, exibido no painel. */
+  name: string;
+  /** Onde fica a tela de abertura. */
+  landingPath: string;
+  /** Onde fica o fluxo de perguntas. */
+  flowPath: string;
+  /** Chave do rascunho no localStorage — separada por formulário. */
+  storageKey: string;
+  estimatedMinutes: number;
+  sections: readonly Section[];
+  questions: readonly Question[];
+  copy: {
+    eyebrow: string;
+    welcomeTitle: string;
+    welcomeLead: string;
+    welcomeBody: readonly string[];
+    welcomeClosing: string;
+    successTitle: string;
+    successBody: readonly string[];
+  };
+}
+
 export type Step =
   | { kind: 'section'; id: string; section: Section }
   | { kind: 'question'; id: string; question: Question; section: Section }

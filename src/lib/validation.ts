@@ -93,6 +93,7 @@ export function isOtherSelected(question: Question, value: unknown): boolean {
 
 /** Schema do payload recebido pela rota de envio — a entrada vem do cliente. */
 export const submissionSchema = z.object({
+  form: z.string().max(60).optional(),
   answers: z.record(z.string(), z.unknown()),
   startedAt: z.number().int().nonnegative().optional(),
 });

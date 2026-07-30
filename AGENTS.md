@@ -37,7 +37,8 @@ src/
 │   ├── admin/                   visualização do briefing e botão de impressão
 │   └── ui/                      botão, mensagem de erro, dica de teclado
 ├── config/brand.ts              ★ identidade: nome, textos, hexadecimais
-├── data/briefing.ts             ★ as 109 perguntas — fonte da verdade
+├── data/forms.ts                ★ registro dos formulários
+├── data/forms/                  ★ um arquivo por formulário — fonte da verdade
 ├── hooks/useBriefingFlow.ts     todo o estado do fluxo
 ├── lib/                         validação, passos, armazenamento, payload, sessão
 ├── styles/theme.css             ★ tokens de cor, tipografia e easing
@@ -57,8 +58,8 @@ Adicionar e remover perguntas é seguro; renomear não é.
 hexadecimais **apenas** porque a imagem de Open Graph roda fora do Tailwind — mudou um, mude o
 outro.
 
-**O payload é montado no servidor**, em `lib/payload.ts`, a partir de `data/briefing.ts`. O
-navegador envia só as respostas cruas.
+**O payload é montado no servidor**, em `lib/payload.ts`, a partir da definição do formulário. O
+navegador envia só o slug e as respostas cruas.
 
 **O briefing é arquivado antes de chamar o webhook.** O envio só falha se nada for guardado —
 sem Blob **e** sem webhook. Perder mais de cem respostas por uma integração fora do ar é pior
@@ -68,9 +69,26 @@ que qualquer outra falha aqui.
 
 ---
 
+## Vários formulários
+
+A aplicação serve mais de um questionário. Cada um é um `BriefingForm` em `data/forms/`,
+registrado em `data/forms.ts`, com suas próprias perguntas, textos, rotas e chave de rascunho.
+Hoje são dois: identidade visual (109 perguntas) e onboarding de marketing (286).
+
+**O identidade visual mantém `/` e `/briefing`** porque esses links já foram enviados a clientes.
+Os demais vivem em `/[slug]` e `/[slug]/responder`. O registro valida no carregamento que os
+caminhos derivam do slug — uma divergência geraria um link para 404 sem erro de compilação.
+
+**O fluxo recebe o slug, não o formulário.** As perguntas carregam funções `showIf`, e funções
+não atravessam a fronteira Server → Client Component; o registro é resolvido dentro do cliente.
+
+Briefings arquivados antes disso não têm `formulario` no JSON — `resolveForm` devolve o padrão.
+
+---
+
 ## Modelo das perguntas
 
-`data/briefing.ts` transcreve o documento oficial: 21 seções, 109 perguntas, 43 obrigatórias.
+Cada arquivo em `data/forms/` transcreve um documento oficial da agência.
 
 ```ts
 {
@@ -113,7 +131,7 @@ closure da renderização.** O avanço automático das escolhas únicas dispara 
 até lá a resposta já entrou e condicionais podem ter revelado passos novos. Validar contra o
 closure antigo acusava "obrigatória" numa pergunta respondida e pulava telas recém-abertas.
 
-Rascunho em `localStorage` (`rubi_briefing_v1`), gravado 400 ms após cada alteração e apagado só
+Rascunho em `localStorage`, numa chave por formulário (`storageKey`), gravado 400 ms após cada alteração e apagado só
 depois do envio confirmado.
 
 ---

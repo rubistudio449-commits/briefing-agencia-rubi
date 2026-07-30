@@ -1,9 +1,14 @@
 # Briefing Studio — RUBI Agência
 
-Aplicação de briefing de identidade visual. O cliente responde **uma pergunta por tela**, no
-estilo Typeform, e ao final todas as respostas são enviadas em JSON para um webhook.
+Aplicação de briefing da RUBI Agência. O cliente responde **uma pergunta por tela**, no estilo
+Typeform; ao final as respostas são arquivadas e ficam num painel interno, com exportação em PDF.
 
-São 21 seções e 109 perguntas transcritas do documento oficial da agência.
+Dois formulários hoje, cada um transcrito de um documento oficial da agência:
+
+| Formulário | Rota | Perguntas |
+|---|---|---|
+| Briefing de Identidade Visual | `/` e `/briefing` | 109 em 21 seções |
+| Onboarding de Marketing | `/onboarding-marketing` | 286 em 35 seções |
 
 ## Começando
 
@@ -24,6 +29,7 @@ normalmente, mas o envio final retorna erro — é o único ponto que exige conf
 | Blob conectado | sim* | Arquiva os briefings para o painel interno. Basta **Storage → Blob → Connect** na Vercel. |
 | `BLOB_READ_WRITE_TOKEN` | não | Só é necessária para o **upload de arquivos pelo navegador**. Sem ela, os campos de referência aceitam apenas link. |
 | `ADMIN_PASSWORD` | não | Senha do painel interno em `/admin`. Sem ela, o painel exibe um aviso e não permite entrar. |
+| `NEXT_PUBLIC_SITE_URL` | não | Domínio final, usado na URL absoluta da imagem de Open Graph. Na Vercel é deduzido automaticamente. |
 
 \* O envio só falha quando o briefing não seria guardado em lugar nenhum — ou seja, sem Blob **e**
 sem webhook. Com qualquer um dos dois, o cliente conclui normalmente.
@@ -39,9 +45,6 @@ clientes anexem imagens em vez de colar links.
 variáveis `NEXT_PUBLIC_` são embutidas no JavaScript enviado ao navegador, o que deixaria o
 endereço do webhook visível para qualquer visitante.
 
-Sem `BLOB_READ_WRITE_TOKEN`, os três campos de upload (seções 11, 15 e 16) escondem a área de
-arrastar arquivos e passam a aceitar somente link — nada quebra.
-
 ## O payload enviado
 
 ```jsonc
@@ -49,7 +52,8 @@ arrastar arquivos e passam a aceitar somente link — nada quebra.
   "nome": "...",
   "email": "...",
   "whatsapp": "...",
-  "empresa": "...",                  // nome da marca (pergunta 2.1)
+  "formulario": "identidade-visual", // qual questionário originou
+  "empresa": "...",                  // nome da marca
   "respostas": {
     "marca_nome": {
       "pergunta": "Qual é o nome da sua marca?",
@@ -72,7 +76,7 @@ arrastar arquivos e passam a aceitar somente link — nada quebra.
 ```
 
 O payload é montado **no servidor**, a partir da transcrição oficial em
-[src/data/briefing.ts](src/data/briefing.ts) — o navegador envia apenas as respostas cruas.
+[src/data/forms/](src/data/forms/) — o navegador envia apenas o slug e as respostas cruas.
 Perguntas ocultadas por lógica condicional e respostas em branco não entram no envio.
 
 `resumoMarkdown` existe para que o destino (n8n, por exemplo) consiga encaminhar o briefing por
@@ -82,7 +86,8 @@ e-mail ou WhatsApp sem ter que percorrer o JSON.
 
 Em `/admin`, protegido por senha (`ADMIN_PASSWORD`), ficam os briefings recebidos:
 
-- **`/admin`** — lista de briefings, do mais recente para o mais antigo, com marca, contato, número de respostas e de arquivos enviados.
+- **`/admin`** — lista de briefings, do mais recente para o mais antigo, com filtro por tipo de formulário.
+- **`/admin/formularios`** — os questionários ativos, com todas as perguntas e o link de cada um.
 - **`/admin/[id]`** — o briefing completo, agrupado pelas 21 seções, com as referências visuais exibidas em miniatura.
 - **`/admin/[id]/imprimir`** — versão em preto sobre branco para exportar em PDF. O botão **Baixar PDF** abre o diálogo de impressão do navegador; basta escolher "Salvar como PDF" em Destino. As imagens de referência entram no documento.
 
@@ -133,7 +138,7 @@ Nenhum outro componente referencia cor ou fonte diretamente.
 
 ## Editar as perguntas
 
-[src/data/briefing.ts](src/data/briefing.ts) é a fonte da verdade. Cada pergunta declara `type`,
+Cada formulário em [src/data/forms/](src/data/forms/) é a fonte da verdade. Cada pergunta declara `type`,
 `required`, `options`, `maxSelections` e uma condicional opcional `showIf`. O componente de
 entrada é escolhido automaticamente:
 
@@ -179,7 +184,7 @@ src/
 
 ## Persistência
 
-As respostas ficam em `localStorage` sob `rubi_briefing_v1`, salvas 400 ms após cada alteração.
+As respostas ficam em `localStorage`, numa chave por formulário, salvas 400 ms após cada alteração.
 Ao reabrir com um rascunho, a aplicação oferece continuar ou recomeçar. A chave só é apagada
 depois que o webhook confirma o recebimento — uma falha de envio nunca perde o preenchimento.
 

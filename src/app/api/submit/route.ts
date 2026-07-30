@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { buildPayload } from '@/lib/payload';
 import { saveSubmission } from '@/lib/submissions';
 import { submissionSchema } from '@/lib/validation';
+import { resolveForm } from '@/data/forms';
 import type { Answers } from '@/types/briefing';
 
 export const runtime = 'nodejs';
@@ -49,7 +50,8 @@ export async function POST(request: Request) {
 
   // O payload é montado aqui a partir da transcrição oficial do briefing:
   // o cliente envia apenas as respostas cruas.
-  const payload = buildPayload(parsed.data.answers as Answers, parsed.data.startedAt);
+  const form = resolveForm(parsed.data.form);
+  const payload = buildPayload(form, parsed.data.answers as Answers, parsed.data.startedAt);
 
   // O painel interno é o destino principal: arquivar primeiro.
   let arquivado: string | null = null;
