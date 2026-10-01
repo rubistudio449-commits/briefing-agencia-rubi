@@ -112,10 +112,10 @@ export function buildPayload(
   return {
     formulario: form.slug,
     formularioNome: form.name,
-    nome: firstOf(answers, 'contato_nome', 'resp_nome'),
+    nome: firstOf(answers, 'contato_nome', 'resp_nome', 'neg_responsavel'),
     email: firstOf(answers, 'contato_email', 'resp_email'),
-    whatsapp: firstOf(answers, 'contato_whatsapp', 'resp_whatsapp'),
-    empresa: firstOf(answers, 'marca_nome', 'empresa_nome'),
+    whatsapp: firstOf(answers, 'contato_whatsapp', 'resp_whatsapp', 'neg_whatsapp'),
+    empresa: firstOf(answers, 'marca_nome', 'empresa_nome', 'neg_empresa'),
     respostas,
     arquivos,
     resumoMarkdown: buildMarkdown(form, answers),
@@ -135,7 +135,7 @@ export function buildPayload(
  */
 export function buildMarkdown(form: BriefingForm, answers: Answers): string {
   const lines: string[] = [`# ${form.name}`];
-  const brandName = firstOf(answers, 'marca_nome', 'empresa_nome');
+  const brandName = firstOf(answers, 'marca_nome', 'empresa_nome', 'neg_empresa');
   if (brandName) lines.push(`**Marca:** ${brandName}`);
 
   let currentSection: number | null = null;

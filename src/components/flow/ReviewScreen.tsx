@@ -38,7 +38,7 @@ export function ReviewScreen({
 
       <p className="mt-6 max-w-lg text-base leading-relaxed text-muted">
         {complete
-          ? 'Você respondeu tudo o que precisávamos. Ao enviar, o briefing segue direto para a nossa equipe e a criação começa.'
+          ? 'Você respondeu tudo o que precisávamos. Ao enviar, o briefing segue direto para a nossa equipe e o trabalho começa.'
           : 'Você pode revisar qualquer resposta antes de enviar, mas estas perguntas obrigatórias ainda estão em branco.'}
       </p>
 

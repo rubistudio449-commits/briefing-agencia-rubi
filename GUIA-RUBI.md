@@ -11,6 +11,7 @@ Claude. Escrito para quem não programa: cada passo é literal.
 |---|---|
 | **Briefing de Identidade Visual** | https://briefing-agencia-rubi.vercel.app |
 | **Onboarding de Marketing** | https://briefing-agencia-rubi.vercel.app/onboarding-marketing |
+| **Briefing de Tráfego Pago** | https://briefing-agencia-rubi.vercel.app/trafego-pago |
 | **Painel interno** | https://briefing-agencia-rubi.vercel.app/admin |
 | **Código** | https://github.com/rubistudio449-commits/briefing-agencia-rubi |
 | **Hospedagem** | Vercel, time RUBI AGENCIA |
@@ -183,6 +184,7 @@ Cada formulário tem o seu próprio arquivo:
 |---|---|
 | Identidade Visual | `src/data/forms/identidade-visual.ts` |
 | Onboarding de Marketing | `src/data/forms/onboarding-marketing.ts` |
+| Briefing de Tráfego Pago | `src/data/forms/trafego-pago.ts` |
 
 Para criar um formulário novo, copie um desses arquivos, troque as perguntas e registre-o em
 `src/data/forms.ts`. O endereço nasce do `slug`: um formulário com `slug: 'atendimento'` fica

@@ -1,9 +1,10 @@
 import { identidadeVisual } from '@/data/forms/identidade-visual';
 import { onboardingMarketing } from '@/data/forms/onboarding-marketing';
+import { trafegoPago } from '@/data/forms/trafego-pago';
 import type { BriefingForm } from '@/types/briefing';
 
 /** Todos os formulários servidos pela aplicação. Adicionar um aqui basta. */
-export const forms: readonly BriefingForm[] = [identidadeVisual, onboardingMarketing];
+export const forms: readonly BriefingForm[] = [identidadeVisual, onboardingMarketing, trafegoPago];
 
 /** O formulário histórico, servido em `/` e `/briefing`. */
 export const defaultForm = identidadeVisual;

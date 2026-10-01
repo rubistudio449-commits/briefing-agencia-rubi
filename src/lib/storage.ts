@@ -1,4 +1,4 @@
-import type { Answers } from '@/types/briefing';
+import { OTHER_SUFFIX, type Answers } from '@/types/briefing';
 
 
 const STORAGE_VERSION = 1;
@@ -65,7 +65,10 @@ export function clearDraft(storageKey: string): void {
 
 /** Quantas respostas o rascunho já contém — usado no diálogo de retomada. */
 export function countAnswered(answers: Answers): number {
-  return Object.values(answers).filter((value) => {
+  // O texto de "Outro" complementa uma resposta, não é outra: contá-lo fazia a
+  // revisão exibir mais respondidas que o total de perguntas.
+  return Object.entries(answers).filter(([id, value]) => {
+    if (id.endsWith(OTHER_SUFFIX)) return false;
     if (value == null) return false;
     if (typeof value === 'string') return value.trim() !== '';
     if (Array.isArray(value)) return value.length > 0;

@@ -73,7 +73,7 @@ que qualquer outra falha aqui.
 
 A aplicação serve mais de um questionário. Cada um é um `BriefingForm` em `data/forms/`,
 registrado em `data/forms.ts`, com suas próprias perguntas, textos, rotas e chave de rascunho.
-Hoje são dois: identidade visual (109 perguntas) e onboarding de marketing (286).
+Hoje são três: identidade visual (109 perguntas), onboarding de marketing (286) e tráfego pago (44).
 
 **O identidade visual mantém `/` e `/briefing`** porque esses links já foram enviados a clientes.
 Os demais vivem em `/[slug]` e `/[slug]/responder`. O registro valida no carregamento que os
