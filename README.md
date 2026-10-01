@@ -9,6 +9,7 @@ Dois formulários hoje, cada um transcrito de um documento oficial da agência:
 |---|---|---|
 | Briefing de Identidade Visual | `/` e `/briefing` | 109 em 21 seções |
 | Onboarding de Marketing | `/onboarding-marketing` | 286 em 35 seções |
+| Briefing de Tráfego Pago | `/trafego-pago` | 44 em 8 seções |
 
 ## Começando
 
