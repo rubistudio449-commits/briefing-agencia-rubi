@@ -31,7 +31,6 @@ export default function OpengraphImage() {
           padding: '80px',
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={wordmarkSrc} alt="" width={340} height={83} />
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
